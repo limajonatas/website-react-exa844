@@ -8,6 +8,24 @@ function App() {
   useEffect(() => {
     fetchMessages();
   }, []);
+  const [filteredMessages, setFilteredMessages] = useState([]);
+
+  useEffect(() => {
+    setFilteredMessages(
+      messages.filter((message) => {
+        const lowerCaseSearch = searchValue.toLowerCase();
+        return (
+          (message.message &&
+            message.message
+              .toString()
+              .toLowerCase()
+              .includes(lowerCaseSearch)) ||
+          (message.author &&
+            message.author.toString().toLowerCase().includes(lowerCaseSearch))
+        );
+      })
+    );
+  }, [messages, searchValue]);
 
   /**
    * Busca as mensagens no servidor
@@ -55,37 +73,29 @@ function App() {
       >
         <thead>
           <tr>
-            <th>Mensagem</th>
-            <th>Autor</th>
-            <th>Data</th>
+            <th style={{ border: "1px solid black" }}>Mensagem</th>
+            <th style={{ border: "1px solid black" }}>Autor</th>
+            <th style={{ border: "1px solid black" }}>Data</th>
           </tr>
         </thead>
         <tbody>
-          {messages
-            .filter((message) => {
-              const lowerCaseSearch = searchValue.toLowerCase();
-              return (
-                (message.message &&
-                  message.message
-                    .toString()
-                    .toLowerCase()
-                    .includes(lowerCaseSearch)) ||
-                (message.author &&
-                  message.author
-                    .toString()
-                    .toLowerCase()
-                    .includes(lowerCaseSearch))
-              );
-            })
-            .map((message, index) => (
+          {filteredMessages.length > 0 ? (
+            filteredMessages.map((message, index) => (
               <tr key={index}>
                 <td>{message.message}</td>
                 <td>{message.author}</td>
-                <td>{`${new Date(message.date).toLocaleDateString()} ${new Date(
+                <td
+                  style={{ paddingLeft: "10px", paddingRight: "1px" }}
+                >{`${new Date(message.date).toLocaleDateString()} ${new Date(
                   message.date
                 ).toLocaleTimeString()}`}</td>
               </tr>
-            ))}
+            ))
+          ) : (
+            <tr>
+              <td colSpan='3'>Nada por aqui...</td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
